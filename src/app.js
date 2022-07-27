@@ -1,7 +1,12 @@
 App = {
+  loading: false,
+  contracts: {},
+
   load: async () => {
     await App.loadWeb3();
     await App.loadAccount();
+    await App.loadContract();
+    await App.render();
   },
 
   // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
@@ -44,8 +49,50 @@ App = {
   },
 
   loadAccount: async () => {
+    // Set the current blockchain account
     App.account = web3.eth.accounts[0];
-    console.log(App.account);
+  },
+
+  loadContract: async () => {
+    // Create a Javascript version of the smart contract
+    const todoList = await $.getJSON("TodoList.json");
+    App.contracts.TodoList = TruffleContract(todoList);
+    App.contracts.TodoList.setProvider(App.web3Provider);
+    console.log(todoList);
+
+    // Hydrate the smart contract with values from the blockchain
+    App.todoList = await App.contracts.TodoList.deployed();
+  },
+
+  render: async () => {
+    // Prevent double render
+    if (App.loading) {
+      return;
+    }
+
+    // Update app loading state
+    App.setLoading(true);
+
+    // Render Account
+    $("#account").html(App.account);
+
+    // Update loading state
+    App.setLoading(false);
+  },
+
+  setLoading: (boolean) => {
+    App.loading = boolean;
+
+    const loader = $("#loader");
+    const content = $("#content");
+
+    if (boolean) {
+      loader.show();
+      content.hide();
+    } else {
+      loader.hide();
+      content.show();
+    }
   },
 };
 
