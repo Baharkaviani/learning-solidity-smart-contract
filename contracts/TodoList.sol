@@ -18,6 +18,8 @@ contract TodoList {
 
     event TaskCreated(uint256 id, string content, bool completed);
 
+    event TaskCompleted(uint256 id, bool completed);
+
     constructor() public {
         // our default task in the dapp
         createTask("learning solidity");
@@ -28,5 +30,12 @@ contract TodoList {
         taskCount++;
 
         emit TaskCreated(taskCount, _content, false);
+    }
+
+    function toggleCompleted(uint256 _id) public {
+        Task memory _task = tasks[_id];
+        _task.completed = !_task.completed;
+        tasks[_id] = _task;
+        emit TaskCompleted(_id, _task.completed);
     }
 }
