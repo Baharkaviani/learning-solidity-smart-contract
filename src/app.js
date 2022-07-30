@@ -51,6 +51,7 @@ App = {
   loadAccount: async () => {
     // Set the current blockchain account
     App.account = web3.eth.accounts[0];
+    web3.eth.defaultAccount = web3.eth.accounts[0];
   },
 
   loadContract: async () => {
@@ -96,10 +97,6 @@ App = {
       const taskContent = task[1];
       const taskCompleted = task[2];
 
-      console.log(task);
-      console.log(taskID);
-      console.log(taskContent);
-
       // Create the html template for the task
       const $newTaskTemplate = $taskTemplate.clone();
 
@@ -121,6 +118,20 @@ App = {
       // Show the task
       $newTaskTemplate.show();
     }
+  },
+
+  createTaskFront: async () => {
+    App.setLoading(true);
+    const content = $("#newTask").val();
+    console.log(content);
+
+    try {
+      await App.todoList.createTask(content);
+    } catch (error) {
+      console.error(error);
+    }
+
+    window.location.reload();
   },
 
   setLoading: (boolean) => {
